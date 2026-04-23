@@ -1,0 +1,25 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    match /tenants/{tenantId} {
+      allow read, create, update, delete: if isSignedIn();
+    }
+
+    match /properties/{propertyId} {
+        allow read, create, update, delete: if isSignedIn();
+    }
+
+    match /payments/{paymentId} {
+      allow read, create: if isSignedIn();
+      // Payments are immutable, so disallow updates and deletes.
+      allow update, delete: if false;
+    }
+  }
+}
